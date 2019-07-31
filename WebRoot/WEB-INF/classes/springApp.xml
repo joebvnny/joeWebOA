@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd 
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd 
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd 
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd" 
+    default-autowire="byName">
+    
+    <!-- spring容器管辖对象包扫描 -->
+    <context:component-scan base-package="com.joebunny.dao,com.joebunny.biz" />  <!-- com.joebunny.web包由SpringMVC容器管理 -->
+    
+    <!-- 加载数据源配置文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties,classpath:jedis.properties" />
+    
+    <!-- Druid数据源配置 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="url" value="${jdbc.url}" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="initialSize" value="${jdbc.pool.initialSize}" />
+        <property name="minIdle" value="${jdbc.pool.minIdle}" />
+        <property name="maxActive" value="${jdbc.pool.maxActive}" />
+        <property name="maxWait" value="${jdbc.pool.maxWait}" />
+    </bean>
+    
+    <!-- Hibernate会话中心配置 -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:hibernate.xml" />
+        <property name="packagesToScan" value="com.joebunny.entity" />
+    </bean>
+    <!-- Hibernate事务配置 -->
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    
+    <!-- MyBatis会话中心配置 -->
+<!--     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
+<!--         <property name="dataSource" ref="dataSource" /> -->
+<!--         <property name="configLocation" value="classpath:mybatis.xml" /> -->
+<!--         <property name="mapperLocations" value="classpath:com/joebunny/dao/mapper/*Mapper.xml" /> -->
+<!--     </bean> -->
+    <!-- MyBatis映射接口扫描 -->
+<!--     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> -->
+<!--         <property name="basePackage" value="com.joebunny.probiz.map" /> -->
+<!--         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" /> -->
+<!--     </bean> -->
+    <!-- MyBatis事务配置 -->
+<!-- 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> -->
+<!-- 	    <property name="dataSource" ref="dataSource" /> -->
+<!-- 	</bean> -->
+    
+    <!-- 事务注解配置 -->
+    <tx:annotation-driven transaction-manager="txManager" proxy-target-class="true" />
+    
+    <!-- 事务代理配置 -->
+<!--     <aop:config proxy-target-class="true"> -->
+<!--         <aop:advisor pointcut="execution(* com.joebunny.service.*.*(..))" advice-ref="txAdvice" /> -->
+<!--     </aop:config> -->
+<!--     <tx:advice id="txAdvice" transaction-manager="txManager"> -->
+<!--         <tx:attributes> -->
+<!--             <tx:method name="list*" read-only="true" /> -->
+<!--             <tx:method name="select*" read-only="true" /> -->
+<!--             <tx:method name="insert*" read-only="false" /> -->
+<!--             <tx:method name="delete*" read-only="false" /> -->
+<!--             <tx:method name="update*" read-only="false" /> -->
+<!--             <tx:method name="*" isolation="DEFAULT" propagation="REQUIRED" rollback-for="Exception" /> -->
+<!--         </tx:attributes> -->
+<!--     </tx:advice> -->
+    
+    <!-- Jedis连接池设置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${jedis.pool.maxTotal}" />
+        <property name="maxIdle" value="${jedis.pool.maxIdle}" />
+        <property name="minIdle" value="${jedis.pool.minIdle}" />
+        <property name="maxWaitMillis" value="${jedis.pool.maxWaitMillis}" />
+        <property name="testOnBorrow" value="${jedis.pool.testOnBorrow}" />
+        <property name="testOnReturn" value="${jedis.pool.testOnReturn}" />
+    </bean>
+    <!-- Jedis连接工厂设置 -->
+    <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="hostName" value="${redis.hostName}" />
+        <property name="port" value="${redis.port}" />
+        <property name="password" value="${redis.password}" />
+        <property name="timeout" value="${redis.timeout}" />
+        <property name="poolConfig" ref="jedisPoolConfig" />
+    </bean>
+    
+    <!-- HttpSession托管Redis设置 -->
+    <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+        <property name="maxInactiveIntervalInSeconds" value="3600" />
+        <property name="httpSessionListeners">
+            <list>
+                <bean class="com.joebunny.common.MySessionListener" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean class="com.joebunny.common.SwaggerConfig" />
+</beans>

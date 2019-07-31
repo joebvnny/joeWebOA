@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="" basedir=".">
+
+    <description>JoeBunny maven-ant compile command</description>
+
+    <property name="srcDir" location="src/main/java"/>
+    <property name="webDir" location="WebRoot"/>
+    <property name="libDir" location="${webDir}/WEB-INF/lib"/>
+    <property name="clzDir" location="${webDir}/WEB-INF/classes"/>
+
+    <target name="initCompileTask">
+        <echo message="================ performing Ant-initCompileTask ================"/>
+        <delete dir="${clzDir}" />
+        <delete dir="${libDir}"/>
+    </target>
+    
+    <target name="postCompileTask">
+        <echo message="================ performing Ant-postCompileTask ================"/>
+    </target>
+    
+<!--     <target name="mainTask" depends="initTask"> -->
+<!--         <echo message="================ performing Ant-mainTask ================"/> -->
+<!--         <mkdir dir="${clzDir}"/> -->
+<!--         <mkdir dir="${libDir}"/> -->
+<!--         <javac encoding="utf-8" srcdir="${srcDir}" destdir="${clzDir}"> -->
+<!--             <classpath refid="classpath"/> -->
+<!--         </javac> -->
+<!--     </target> -->
+
+</project>

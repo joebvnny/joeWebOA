@@ -1,0 +1,22 @@
+# redisson configuration for redis servers
+# see : https://github.com/mrniko/redisson/wiki
+
+# Redis
+singleServerConfig:
+    address: ["redis://127.0.0.1:6379"]
+    password: fvkhl17
+    clientName: joeRedisson
+    connectTimeout: 1000
+    timeout: 1000
+    reconnectionTimeout: 3000
+    connectionPoolSize: 20
+    connectionMinimumIdleSize: 5
+    subscriptionsPerConnection: 5
+    subscriptionConnectionPoolSize: 10
+    subscriptionConnectionMinimumIdleSize: 1
+    database: 0
+    
+# Codec
+codec: !<org.redisson.codec.JsonJacksonCodec> {}
+useLinuxNativeEpoll: false
+eventLoopGroup: null
