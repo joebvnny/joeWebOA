@@ -17,7 +17,7 @@
         <activiti.version>5.22.0</activiti.version>
         <mybatis.version>3.4.2</mybatis.version>
         <spring.version>4.2.8.RELEASE</spring.version>
-        <hibernate.version>4.3.8.Final</hibernate.version>
+        <hibernate.version>5.4.24.Final</hibernate.version>
     </properties>
     
     <build>
